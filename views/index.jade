@@ -1,5 +1,38 @@
 extends layout
+block scripts
+  script(type='text/javascript', src='/socket.io/socket.io.js')
+  script(type='text/javascript')
+    function setRotation(id, angle){
+      document.getElementById(id).setAttribute("style", "-webkit-transform:rotate("+(180+angle)+"deg)");
+    }
+    var socket = io.connect('http://john.wireless.rit.edu');
+    socket.on('bump', function (data) {
+      console.log("-webkit-transform:rotate("+(180-data)+"deg)");
+      setRotation("arrow",data);
+    });
+    socket.on('zero', function(){
+      setRotation("arrow",0);
+      console.log('ZERO!!!!');
+    });
+    window.onload = function(){
+      document.getElementById('bump').onclick=function(){
+        socket.emit('bump');
+      };
+    }
+
+block styles
+  style(type='text/css')
+    #arrow{
+      /*width: 400px;
+      height: 50px;*/
+      -webkit-transform: rotate(180deg);
+      -webkit-transition-property: transform;
+      -webkit-transition-duration: .5s;
+      -webkit-transition-timing-function: ease-out;
+    }
 
 block content
   h1= title
   p Welcome to #{title}
+  img#arrow(src='/img/arrow.svg')
+  button#bump Bump!

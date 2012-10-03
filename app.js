@@ -30,6 +30,31 @@ app.configure('development', function(){
 app.get('/', routes.index);
 app.get('/users', user.list);
 
-http.createServer(app).listen(app.get('port'), function(){
+var server = http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
+});
+
+function decrement(){
+  if(val > 0)
+    val -= 20;
+  if(val < 0)
+    val = 0;
+  io.sockets.in('').emit('bump',val);
+  timer = setTimeout(decrement,10000);
+}
+
+var io = require('socket.io').listen(server)
+  , val = 0
+  , timer;
+io.sockets.on('connection', function (socket) {
+  socket.emit('bump',val);
+  socket.on('bump', function (data) {
+    val += 5;
+    try{
+      clearTimeout(timer);
+    }
+    catch(err){};
+    timer = setTimeout(decrement, 10000);
+    io.sockets.in('').emit('bump', val);
+  });
 });
