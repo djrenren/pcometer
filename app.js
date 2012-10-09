@@ -49,7 +49,9 @@ var io = require('socket.io').listen(server)
 io.sockets.on('connection', function (socket) {
   socket.emit('bump',val);
   socket.on('bump', function (data) {
-    val += 5;
+    val += 15;
+    if(val > 180)
+      val=180
     try{
       clearTimeout(timer);
     }
